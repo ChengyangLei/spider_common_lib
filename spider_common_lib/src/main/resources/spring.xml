@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="params"
+        class="org.zju.ccnt.jsync.client.handler.paras.imp.DefaultParams">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="dbParams"
+        class="org.zju.ccnt.jsync.client.handler.paras.imp.DefaultDBParams">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    
+    
+    
+    <bean id="blackholeHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.BlackHoleHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="buildMysqlControlTableHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.BuildMysqlControlTableHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="checkDBConHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.CheckDBConnectionHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="clearMysqlControlTableHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.ClearMysqlControlTableHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    
+    <bean id="countRowHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.CountRowDataPerfHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="errorEventHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.ErrorEventHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="mysqlExeHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.MysqlExecuteHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="okEventHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.OKEventHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="pingEventHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.PingEventHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="printEventHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.PrintEventHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    <bean id="stopEventHandler"
+        class="org.zju.ccnt.jsync.client.handler.imp.StopEventHandler">
+        <!-- additional collaborators and configuration for this bean go here -->
+    </bean>
+    
+
+    <!-- more bean definitions go here -->
+
+</beans>
