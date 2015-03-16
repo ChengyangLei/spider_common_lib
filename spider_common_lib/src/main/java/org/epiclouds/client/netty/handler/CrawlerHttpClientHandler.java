@@ -1,20 +1,13 @@
 package org.epiclouds.client.netty.handler;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
-import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 
 import java.net.SocketAddress;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.epiclouds.handlers.AbstractNettyCrawlerHandler;
-import org.epiclouds.handlers.util.CrawlerEnvironment;
 import org.epiclouds.handlers.util.MyHttpResponse;
 
 /**

@@ -6,10 +6,12 @@
 package org.epiclouds.handlers;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.handler.codec.http.HttpMethod;
 
 import java.net.SocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.epiclouds.handlers.util.CrawlerEnvironment;
 import org.epiclouds.handlers.util.FinishCallBack;
 
 /**
@@ -22,20 +24,42 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 
 
 	protected volatile FinishCallBack callback;
-	protected volatile String host;
-	
-	protected volatile boolean useproxy;
-	protected volatile SocketAddress proxyaddr;
-	
-	protected volatile String url;
-
 	protected volatile HandlerResultState state;
 	
-	public volatile int  num=0;
-	public volatile long time=System.currentTimeMillis();
+	protected volatile String host;
+	protected volatile String url;
+	protected volatile HttpMethod md=HttpMethod.GET;
+	protected volatile Map<String,String> headers=new HashMap<String, String>();
+	protected volatile Map<String,String> postdata=new HashMap<String, String>();
+	
+	protected volatile SocketAddress proxyaddr;
 	
 	public String getHost() {
 		return host;
+	}
+
+	public HttpMethod getMd() {
+		return md;
+	}
+
+	public void setMd(HttpMethod md) {
+		this.md = md;
+	}
+
+	public Map<String, String> getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(Map<String, String> headers) {
+		this.headers = headers;
+	}
+
+	public Map<String, String> getPostdata() {
+		return postdata;
+	}
+
+	public void setPostdata(Map<String, String> postdata) {
+		this.postdata = postdata;
 	}
 
 	public void setHost(String host) {
@@ -66,13 +90,6 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 		this.callback = callback;
 	}
 
-	public boolean isUseproxy() {
-		return useproxy;
-	}
-
-	public void setUseproxy(boolean useproxy) {
-		this.useproxy = useproxy;
-	}
 
 	public SocketAddress getProxyaddr() {
 		return proxyaddr;
@@ -91,14 +108,7 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 	}
 	public abstract void setSb(Bootstrap sb);
 	
-	
-	protected void sleep(){
-		if(this.useproxy){
-			CrawlerEnvironment.sleep(host);
-		}else{
-			CrawlerEnvironment.sleep();
-		}
-	}
+
 	
 	public  enum HandlerResultState{
 		SUCCESS,

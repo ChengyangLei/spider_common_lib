@@ -6,7 +6,6 @@
 package org.epiclouds.handlers.util;
 
 import org.epiclouds.handlers.AbstractHandler;
-import org.epiclouds.handlers.AbstractNettyCrawlerHandler;
 
 /**
  * @author Administrator
