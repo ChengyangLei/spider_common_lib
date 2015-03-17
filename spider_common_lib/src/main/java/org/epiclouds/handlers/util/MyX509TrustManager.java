@@ -40,6 +40,7 @@ public class MyX509TrustManager implements X509TrustManager {
          */
         throw new Exception("Couldn't initialize");
     }
+    
     /*
      * Delegate to the default trust manager.
      */
@@ -65,11 +66,13 @@ public class MyX509TrustManager implements X509TrustManager {
              */
         }
     }
+
     /*
      * Merely pass this through.
      */
     public X509Certificate[] getAcceptedIssuers() {
         return sunJSSEX509TrustManager.getAcceptedIssuers();
     }
+   
 }
        

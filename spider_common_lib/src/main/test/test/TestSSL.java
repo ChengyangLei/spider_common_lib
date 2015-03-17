@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -13,6 +14,8 @@ import org.epiclouds.handlers.util.MyX509TrustManager;
 
 public class TestSSL {
 	public static void main(String args[]) throws Exception{
+		KeyManager km;
+	
 		 // 创建SSLContext对象，并使用我们指定的信任管理器初始化
         TrustManager[] tm = { new MyX509TrustManager() };
         SSLContext sslContext = SSLContext.getInstance("SSL", "SunJSSE");
