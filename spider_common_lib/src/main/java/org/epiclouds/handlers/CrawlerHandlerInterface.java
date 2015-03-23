@@ -16,7 +16,8 @@ import io.netty.handler.codec.http.HttpMethod;
  */
 public interface CrawlerHandlerInterface extends Runnable{
 	public void handle(ByteBuf content) throws Exception;
-	public void request(String url,HttpMethod hm,Map<String,String> headers,Map<String,String> postdata) throws Exception;
+	public void request(String url,HttpMethod hm,Map<String,String> headers,Map<String,String> postdata,
+			String schema) throws Exception;
 	public void stop();
 	public void close();
 }

@@ -26,6 +26,7 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 	protected volatile FinishCallBack callback;
 	protected volatile HandlerResultState state;
 	
+	protected volatile String schema;
 	protected volatile String host;
 	protected volatile String url;
 	protected volatile HttpMethod md=HttpMethod.GET;
@@ -69,7 +70,6 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 		return state;
 	}
 
-	public abstract String getBrand();
 	public void setState(HandlerResultState state) {
 		this.state = state;
 	}
@@ -106,7 +106,6 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	public abstract void setSb(Bootstrap sb);
 	
 
 	

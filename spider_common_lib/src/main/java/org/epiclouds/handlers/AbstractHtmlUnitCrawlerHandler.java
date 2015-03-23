@@ -41,6 +41,7 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 	private String windowName;
 	private int errorlimit=Integer.MAX_VALUE;
 	private boolean isclosed=true;
+
 	
 
 	public AbstractHtmlUnitCrawlerHandler(){
@@ -49,7 +50,7 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 
 
 	public AbstractHtmlUnitCrawlerHandler(SocketAddress proxyaddr
-			,long today,String source,String host,String url,int errorlimit
+			,String host,String url,int errorlimit
 			){
 		super();
 		this.proxyaddr=proxyaddr;
@@ -129,7 +130,7 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 		}
 		
 	}
-	public void request(String url,HttpMethod hm,Map<String,String> headers,Map<String,String> postdata) throws Exception{
+	public void request(String url,HttpMethod hm,Map<String,String> headers,Map<String,String> postdata,String schema) throws Exception{
 		this.url=url;
 		requestSelf();
 	}

@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpRequestEncoder;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 
 import org.epiclouds.handlers.AbstractHandler;
+import org.epiclouds.handlers.AbstractNettyCrawlerHandler;
 import org.epiclouds.handlers.util.CrawlerEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,12 +68,12 @@ public class CrawlerClient {
 				}	
 	        });
 	        System.out.println("client started");
-	        
-    	
     }
     
     public void execute(final AbstractHandler h) {
-    	h.setSb(sb);
+    	if(h instanceof AbstractNettyCrawlerHandler){
+    		((AbstractNettyCrawlerHandler) h).setSb(sb);
+    	}
     	//h.setChannel(new NioSocketChannel(workers.next()));
 		CrawlerEnvironment.pool.execute(h);
     }

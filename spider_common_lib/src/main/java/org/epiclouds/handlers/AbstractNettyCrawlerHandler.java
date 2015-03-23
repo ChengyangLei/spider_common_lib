@@ -39,8 +39,8 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 	private  ArrayBlockingQueue<MyHttpResponse> que=new ArrayBlockingQueue<>(100);
 	
 
-	public AbstractNettyCrawlerHandler(String dbStr,String source,String model,String type,long today,
-			SocketAddress proxyAddr,String host,String url,HttpMethod md,Map<String,String> headers,
+	public AbstractNettyCrawlerHandler(
+			SocketAddress proxyAddr,String schema,String host,String url,HttpMethod md,Map<String,String> headers,
 			Map<String,String> postdata){
 		this.proxyaddr=proxyAddr;
 		if(headers!=null)
@@ -48,10 +48,13 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		this.host=host;
 		this.url=url;
 		this.md=md;
+		this.schema=schema;
 		if(postdata!=null){
 			this.postdata.putAll(postdata);;
 		}
 	}
+
+
 	private void reconnect(){
 		if(channel!=null&&channel.isActive()){
 			return;
@@ -59,7 +62,7 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		this.que.clear();
 		SocketAddress addr=null;
 		if(proxyaddr==null){
-			addr=new InetSocketAddress(host, 80);
+			addr=new InetSocketAddress(host,schema.equals("http")?80:443 );
 		}else{
 			addr=proxyaddr;
 		}
@@ -138,11 +141,12 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 			channel.writeAndFlush(req);
 		}
 	}
-	public void request(String url,HttpMethod hm,Map<String,String> headers,Map<String,String> postdata){
+	public void request(String url,HttpMethod hm,Map<String,String> headers,Map<String,String> postdata,String schema){
 		this.url=url;
 		this.md=hm;
 		this.headers=headers;
 		this.postdata=postdata;
+		this.schema=schema;
 		requestSelf();
 	}
 	
@@ -167,7 +171,6 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 	public void run() {
 		// TODO Auto-generated method stub
 		try{
-			System.out.println(this.getBrand());
 			while(isrun){
 				try{
 					this.reconnect();
@@ -240,11 +243,6 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 	public void setSb(Bootstrap sb) {
 		this.sb = sb;
 	}
-	
-
-
-
-
 	
 
 }
