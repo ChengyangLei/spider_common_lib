@@ -6,6 +6,7 @@
 package org.epiclouds.handlers;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.DefaultChannelPromise;
@@ -20,6 +21,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +43,7 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 
 	public AbstractNettyCrawlerHandler(
 			SocketAddress proxyAddr,String schema,String host,String url,HttpMethod md,Map<String,String> headers,
-			Map<String,String> postdata){
+			Map<String,String> postdata,String charset){
 		this.proxyaddr=proxyAddr;
 		if(headers!=null)
 			this.headers.putAll(headers);
@@ -50,8 +52,9 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		this.md=md;
 		this.schema=schema;
 		if(postdata!=null){
-			this.postdata.putAll(postdata);;
+			this.postdata.putAll(postdata);
 		}
+		this.charset=charset;
 	}
 
 
@@ -209,7 +212,7 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		int status=fullHttpResponse.getStatus().code()/100;
 		if(status==2){
 			try{
-				handle(fullHttpResponse.content());
+				handle(fullHttpResponse.content().toString(Charset.forName(charset)));
 			}catch(Exception e){
 				CrawlerClient.mainlogger.error(this.url,e);
 				/*FileOutputStream out=new FileOutputStream("a.htm");

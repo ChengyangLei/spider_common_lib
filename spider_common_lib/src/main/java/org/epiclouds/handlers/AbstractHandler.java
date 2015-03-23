@@ -32,6 +32,7 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 	protected volatile HttpMethod md=HttpMethod.GET;
 	protected volatile Map<String,String> headers=new HashMap<String, String>();
 	protected volatile Map<String,String> postdata=new HashMap<String, String>();
+	protected volatile String charset;
 	
 	protected volatile SocketAddress proxyaddr;
 	

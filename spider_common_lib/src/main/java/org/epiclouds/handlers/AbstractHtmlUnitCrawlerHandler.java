@@ -50,13 +50,14 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 
 
 	public AbstractHtmlUnitCrawlerHandler(SocketAddress proxyaddr
-			,String host,String url,int errorlimit
+			,String host,String url,int errorlimit,String charset
 			){
 		super();
 		this.proxyaddr=proxyaddr;
 		this.host=host;
 		this.url=url;
 		this.errorlimit=errorlimit;
+		this.charset=charset;
 	}
 	
 	public void stop(){
@@ -94,8 +95,8 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 		if(status==2){
 			ByteBuf bb=null;
 			try{
-				bb=Unpooled.wrappedBuffer(webResponse.getContentAsString().getBytes(webResponse.getContentCharset()));
-				handle(bb);
+				//bb=Unpooled.wrappedBuffer(webResponse.getContentAsString().getBytes(webResponse.getContentCharset()));
+				handle(webResponse.getContentAsString(charset));
 			}catch(Exception e){
 /*				FileOutputStream out=new FileOutputStream("a.htm");
 				out.write(webResponse.getContentAsString().getBytes(webResponse.getContentCharset()));

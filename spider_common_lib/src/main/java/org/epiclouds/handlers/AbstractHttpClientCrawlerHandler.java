@@ -93,8 +93,8 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 		if(status==2){
 			ByteBuf bb=null;
 			try{
-				bb=Unpooled.wrappedBuffer(EntityUtils.toByteArray(webResponse.getEntity()));
-				handle(bb);
+				//bb=Unpooled.wrappedBuffer(EntityUtils.toByteArray(webResponse.getEntity()));
+				handle(EntityUtils.toString(webResponse.getEntity(), charset));
 			}catch(Exception e){
 /*				FileOutputStream out=new FileOutputStream("a.htm");
 				out.write(webResponse.getContentAsString().getBytes(webResponse.getContentCharset()));
