@@ -9,7 +9,7 @@ public class RunTera {
 		// TODO Auto-generated method stub
 		CrawlerClient cr=new CrawlerClient();
 		AbstractHandler ab=new TerapeakSpider(null, "sell.terapeak.com", "/", "https", 
-				"utf-8", "pants");
+				"utf-8", "pants",30,10);
 		cr.execute(ab);
 	}
 

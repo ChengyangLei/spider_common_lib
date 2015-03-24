@@ -25,9 +25,11 @@ public class TerapeakSpider extends AbstractHttpClientCrawlerHandler {
 	private FileOutputStream out;
 	private TerapeakBean tb=new TerapeakBean();
 	public TerapeakSpider(SocketAddress proxyaddr, String host, String url,
-			String schema, String charset,String keyword) {
+			String schema, String charset,String keyword,int days,int num) {
 		super(proxyaddr, host, url, schema, charset);
 		this.keyword=keyword;
+		this.days=days;
+		this.num=num;
 		try {
 			out=new FileOutputStream(fileName);
 		} catch (FileNotFoundException e) {
