@@ -31,6 +31,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -59,19 +60,18 @@ public abstract class AbstractHttpClientCrawlerHandler extends
     private CloseableHttpClient httpclient ;
 	
 
-	public AbstractHttpClientCrawlerHandler(){
-		super();
-	}
+
 
 
 	public AbstractHttpClientCrawlerHandler(SocketAddress proxyaddr
-			,String host,String url,String schema
+			,String host,String url,String schema,String charset
 			){
 		super();
 		this.proxyaddr=proxyaddr;
 		this.host=host;
 		this.url=url;
 		this.schema=schema;
+		this.charset=charset;
 	}
 	
 	public void stop(){
@@ -134,32 +134,45 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 			if(this.md.compareTo(HttpMethod.POST)==0){
 				request = new HttpPost(url);
 				if(this.postdata!=null){
-					for(String k:this.getPostdata().keySet()){
-						List<NameValuePair> nvps = new ArrayList <NameValuePair>();  
-				          
-				        Set<String> keySet = this.postdata.keySet();  
-				        for(String key : keySet) {  
-				            nvps.add(new BasicNameValuePair(key, this.postdata.get(key)));  
-				        }  
-				          
-				        ((HttpPost)request).setEntity(new UrlEncodedFormEntity(nvps));  
+					if(this.postdata.size()==1&&this.postdata.get(null)!=null){
+						((HttpPost)request).setEntity(new StringEntity(this.postdata.get(null)));  
+					}else{
+						for(String k:this.getPostdata().keySet()){
+							List<NameValuePair> nvps = new ArrayList <NameValuePair>();  
+					          
+					        Set<String> keySet = this.postdata.keySet();  
+					        for(String key : keySet) {  
+					            nvps.add(new BasicNameValuePair(key, this.postdata.get(key)));  
+					        }  
+					          
+					        ((HttpPost)request).setEntity(new UrlEncodedFormEntity(nvps));  
+						}
 					}
 				}
 				
 			}
+			 RequestConfig config ;
 			if(this.getProxyaddr()!=null){
 	            HttpHost proxy = new HttpHost(((InetSocketAddress)this.getProxyaddr()).getHostString(), 
 	            		((InetSocketAddress)this.getProxyaddr()).getPort(),
 	            		"http");
-
-	            RequestConfig config = RequestConfig.custom()
-	                    .setProxy(proxy)
+	            config = RequestConfig.custom()
+						 .setConnectionRequestTimeout(30*1000)
+						 .setConnectTimeout(30*1000)
+						 .setSocketTimeout(30*1000)
+		                 .setProxy(proxy)
 	                    .build();
-	            ((HttpRequestBase)request).setConfig(config);
+			}else{
+				config = RequestConfig.custom()
+						 .setConnectionRequestTimeout(30*1000)
+						 .setConnectTimeout(30*1000)
+						 .setSocketTimeout(30*1000)
+		                    .build();
 			}
-			request.addHeader("Connection","Keep-Alive");
+			((HttpRequestBase)request).setConfig(config);
+			request.addHeader("Connection","keep-Alive");
 			request.addHeader("Host",this.host);
-			request.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 Safari/537.36");
+			request.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.76 Safari/537.36");
 			if(this.headers!=null){
 				for(String k:headers.keySet()){
 					request.addHeader(k,headers.get(k));
@@ -200,7 +213,11 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 					reconnect();
 					CloseableHttpResponse re=this.que.poll(30*1000,TimeUnit.MILLISECONDS);
 					if(re!=null){
-						handleResponse2(re);
+						try{
+							handleResponse2(re);
+						}finally{
+							re.close();
+						}
 					}else{
 						requestSelf();
 					}
@@ -212,15 +229,7 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					try {
-						requestSelf();
-					} catch (ClientProtocolException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					
 				}
 			}
 		}finally{

@@ -78,8 +78,8 @@ public class TerapeakTest {
             {
             	
             	SearchBean sb=new SearchBean();
-            	sb.setDate("2015-02-15");
-            	sb.setDate_range(7);
+            	sb.setDate("2015-03-14");
+            	sb.setDate_range(30);
             	sb.setQuery("pants");
             	sb.setCurrency("1");
             	HttpUriRequest login = RequestBuilder.post()

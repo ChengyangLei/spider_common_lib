@@ -1,18 +1,13 @@
 package test.tarapeak;
 
 public class SearchBean {
-	private int id;
+	private String id;
 	private String siteID;
 	private String query;
 	private String date;
 	private int date_range;
 	private String currency;
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
+
 	public String getSiteID() {
 		return siteID;
 	}
@@ -42,6 +37,12 @@ public class SearchBean {
 	}
 	public void setCurrency(String currency) {
 		this.currency = currency;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 }
