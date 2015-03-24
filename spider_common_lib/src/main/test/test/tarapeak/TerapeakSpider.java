@@ -54,7 +54,7 @@ public class TerapeakSpider extends AbstractHttpClientCrawlerHandler {
         sr.setDate(dt5.toString("yyyy-MM-dd"));
         HashMap<String,String> pd=new HashMap<String,String>();
         pd.put(null, JSONObject.toJSONString(sr));
-        System.err.println(JSONObject.toJSONString(sr));
+       
         HashMap<String,String> hs=new HashMap<String,String>();
         //headers
         hs.put("Accept", "application/json, text/javascript, */*; q=0.01");
@@ -74,10 +74,7 @@ public class TerapeakSpider extends AbstractHttpClientCrawlerHandler {
         	tb.addTotal_listings(tmp.getTotal_listings());
         	tb.addSell_through(tmp.getSell_through());
         }
-        System.err.println("sleeping");
-		Thread.sleep(10*1000);
-		request("/services/ebay/legacy/productresearch/researchtrends?token=4e5396e3fe80ee1249a0b8147c08c5636a95579b274624fc6ce568ef3d2cdde5", HttpMethod.POST, 
-					hs, pd, "https");
+       
 		if(i>num+1){
 			out.write(JSONObject.toJSONString(tb).getBytes(charset));
 			out.close();
@@ -85,8 +82,13 @@ public class TerapeakSpider extends AbstractHttpClientCrawlerHandler {
 			System.err.println("完成");
 			return;
 		}
-		
 		i++;
+		 System.err.println(JSONObject.toJSONString(sr));
+        System.err.println("sleeping");
+		Thread.sleep(10*1000);
+		request("/services/ebay/legacy/productresearch/researchtrends?token=4e5396e3fe80ee1249a0b8147c08c5636a95579b274624fc6ce568ef3d2cdde5", HttpMethod.POST, 
+					hs, pd, "https");
+		
 	}
 
 }
