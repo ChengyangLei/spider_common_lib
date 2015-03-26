@@ -137,3 +137,50 @@ java.net.SocketTimeoutException: Read timed out
 2015-03-24 11:35:35,067 WARN [pool-1-thread-1] org.apache.http.client.protocol.ResponseProcessCookies [ResponseProcessCookies.java:121] Cookie rejected [localeHeader=".terapeak.com", version:0, domain:7200, path:/, expiry:Tue Mar 24 11:35:21 CST 2015] Illegal domain attribute "7200". Domain of origin: "sell.terapeak.com"
 2015-03-24 11:46:28,291 WARN [pool-1-thread-1] org.apache.http.client.protocol.ResponseProcessCookies [ResponseProcessCookies.java:121] Cookie rejected [localeHeader=".terapeak.com", version:0, domain:7200, path:/, expiry:Tue Mar 24 11:46:14 CST 2015] Illegal domain attribute "7200". Domain of origin: "sell.terapeak.com"
 2015-03-24 11:56:46,743 WARN [pool-1-thread-1] org.apache.http.client.protocol.ResponseProcessCookies [ResponseProcessCookies.java:121] Cookie rejected [localeHeader=".terapeak.com", version:0, domain:7200, path:/, expiry:Tue Mar 24 11:56:33 CST 2015] Illegal domain attribute "7200". Domain of origin: "sell.terapeak.com"
+2015-03-26 16:16:17,288 ERROR [pool-1-thread-1] org.epiclouds.client.main.CrawlerClient [AbstractHttpClientCrawlerHandler.java:225] /
+javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at sun.security.ssl.Alerts.getSSLException(Alerts.java:192) ~[na:1.8.0_40]
+	at sun.security.ssl.SSLSocketImpl.fatal(SSLSocketImpl.java:1937) ~[na:1.8.0_40]
+	at sun.security.ssl.Handshaker.fatalSE(Handshaker.java:302) ~[na:1.8.0_40]
+	at sun.security.ssl.Handshaker.fatalSE(Handshaker.java:296) ~[na:1.8.0_40]
+	at sun.security.ssl.ClientHandshaker.serverCertificate(ClientHandshaker.java:1478) ~[na:1.8.0_40]
+	at sun.security.ssl.ClientHandshaker.processMessage(ClientHandshaker.java:212) ~[na:1.8.0_40]
+	at sun.security.ssl.Handshaker.processLoop(Handshaker.java:969) ~[na:1.8.0_40]
+	at sun.security.ssl.Handshaker.process_record(Handshaker.java:904) ~[na:1.8.0_40]
+	at sun.security.ssl.SSLSocketImpl.readRecord(SSLSocketImpl.java:1050) ~[na:1.8.0_40]
+	at sun.security.ssl.SSLSocketImpl.performInitialHandshake(SSLSocketImpl.java:1363) ~[na:1.8.0_40]
+	at sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:1391) ~[na:1.8.0_40]
+	at sun.security.ssl.SSLSocketImpl.startHandshake(SSLSocketImpl.java:1375) ~[na:1.8.0_40]
+	at org.apache.http.conn.ssl.SSLConnectionSocketFactory.createLayeredSocket(SSLConnectionSocketFactory.java:275) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.conn.ssl.SSLConnectionSocketFactory.connectSocket(SSLConnectionSocketFactory.java:254) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.conn.HttpClientConnectionOperator.connect(HttpClientConnectionOperator.java:117) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.conn.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:314) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.execchain.MainClientExec.establishRoute(MainClientExec.java:363) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.execchain.MainClientExec.execute(MainClientExec.java:219) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.execchain.ProtocolExec.execute(ProtocolExec.java:195) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.execchain.RetryExec.execute(RetryExec.java:86) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.execchain.RedirectExec.execute(RedirectExec.java:108) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.client.InternalHttpClient.doExecute(InternalHttpClient.java:186) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:115) ~[httpclient-4.3.3.jar:4.3.3]
+	at org.epiclouds.handlers.AbstractHttpClientCrawlerHandler.requestSelf(AbstractHttpClientCrawlerHandler.java:182) ~[classes/:na]
+	at org.epiclouds.handlers.AbstractHttpClientCrawlerHandler.reconnect(AbstractHttpClientCrawlerHandler.java:87) ~[classes/:na]
+	at org.epiclouds.handlers.AbstractHttpClientCrawlerHandler.run(AbstractHttpClientCrawlerHandler.java:213) ~[classes/:na]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [na:1.8.0_40]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [na:1.8.0_40]
+	at java.lang.Thread.run(Thread.java:745) [na:1.8.0_40]
+Caused by: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:387) ~[na:1.8.0_40]
+	at sun.security.validator.PKIXValidator.engineValidate(PKIXValidator.java:292) ~[na:1.8.0_40]
+	at sun.security.validator.Validator.validate(Validator.java:260) ~[na:1.8.0_40]
+	at sun.security.ssl.X509TrustManagerImpl.validate(X509TrustManagerImpl.java:324) ~[na:1.8.0_40]
+	at sun.security.ssl.X509TrustManagerImpl.checkTrusted(X509TrustManagerImpl.java:229) ~[na:1.8.0_40]
+	at sun.security.ssl.X509TrustManagerImpl.checkServerTrusted(X509TrustManagerImpl.java:124) ~[na:1.8.0_40]
+	at sun.security.ssl.ClientHandshaker.serverCertificate(ClientHandshaker.java:1460) ~[na:1.8.0_40]
+	... 24 common frames omitted
+Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at sun.security.provider.certpath.SunCertPathBuilder.build(SunCertPathBuilder.java:145) ~[na:1.8.0_40]
+	at sun.security.provider.certpath.SunCertPathBuilder.engineBuild(SunCertPathBuilder.java:131) ~[na:1.8.0_40]
+	at java.security.cert.CertPathBuilder.build(CertPathBuilder.java:280) ~[na:1.8.0_40]
+	at sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:382) ~[na:1.8.0_40]
+	... 30 common frames omitted
+2015-03-26 16:36:55,108 WARN [pool-1-thread-1] org.apache.http.client.protocol.ResponseProcessCookies [ResponseProcessCookies.java:121] Cookie rejected [localeHeader=".terapeak.com", version:0, domain:7200, path:/, expiry:Thu Mar 26 16:36:36 CST 2015] Illegal domain attribute "7200". Domain of origin: "sell.terapeak.com"

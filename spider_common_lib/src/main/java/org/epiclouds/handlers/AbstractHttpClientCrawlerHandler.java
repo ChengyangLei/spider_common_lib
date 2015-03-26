@@ -15,12 +15,21 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketAddress;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
@@ -31,6 +40,10 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -39,6 +52,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.epiclouds.client.main.CrawlerClient;
+import org.epiclouds.handlers.util.MyX509TrustManager;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
@@ -78,10 +92,30 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 		this.isrun=false;
 	}
 	
-	private void reconnect() throws FailingHttpStatusCodeException, IOException{
+	private void reconnect() throws FailingHttpStatusCodeException, IOException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException{
 		if(httpclient==null){
+			 SSLContext sslContext = SSLContexts.custom()
+			            .loadTrustMaterial(null,new TrustStrategy() {
+
+
+							@Override
+							public boolean isTrusted(X509Certificate[] chain,
+									String authType)
+									throws CertificateException {
+								// TODO Auto-generated method stub
+								return true;
+							}
+			            })
+			            .useTLS()
+			            .build();
+			 SSLConnectionSocketFactory connectionFactory =
+			            new SSLConnectionSocketFactory(sslContext, new AllowAllHostnameVerifier());
+
+	        // 从上述SSLContext对象中得到SSLSocketFactory对象
+	        SSLSocketFactory ssf = sslContext.getSocketFactory();
 			 cookieStore = new BasicCookieStore();
 			 httpclient = HttpClients.custom()
+					 	.setSSLSocketFactory(connectionFactory)
 			            .setDefaultCookieStore(cookieStore)
 			            .build();
 			requestSelf();
@@ -96,10 +130,6 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 				//bb=Unpooled.wrappedBuffer(EntityUtils.toByteArray(webResponse.getEntity()));
 				handle(EntityUtils.toString(webResponse.getEntity(), charset));
 			}catch(Exception e){
-/*				FileOutputStream out=new FileOutputStream("a.htm");
-				out.write(webResponse.getContentAsString().getBytes(webResponse.getContentCharset()));
-				out.flush();
-				out.close();*/
 				throw e;
 			}finally{
 				if(bb!=null){
@@ -109,7 +139,11 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 			return;
 		}
 		System.err.println("error:"+webResponse.getStatusLine()+":"+this.getUrl());
-		Thread.sleep(20*1000);
+		Thread.sleep(errorSleepTime);
+		onError(webResponse);
+		
+	}
+	public void onError(Object response){
 		
 	}
 	public void close(){
@@ -224,7 +258,7 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 				}catch(Exception e){
 					CrawlerClient.mainlogger.error(this.url,e);
 					try {
-						Thread.sleep(10*1000);
+						Thread.sleep(errorSleepTime);
 					} catch (InterruptedException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();

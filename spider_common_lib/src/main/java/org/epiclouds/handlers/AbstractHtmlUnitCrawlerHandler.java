@@ -111,7 +111,11 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 			return;
 		}
 		System.err.println("error:"+webResponse.getStatusMessage()+":"+this.getUrl());
+		Thread.sleep(errorSleepTime);
 		close();
+		onError(webResponse);
+	}
+	public void onError(Object response){
 		
 	}
 	public void close(){

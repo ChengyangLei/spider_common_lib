@@ -1,6 +1,6 @@
 /**
  * @author Administrator
- * @created 2014 2014年12月1日 下午2:35:09
+ * @created 2014 2014骞�12鏈�1鏃� 涓嬪崍2:35:09
  * @version 1.0
  */
 package org.epiclouds.handlers;
@@ -193,8 +193,8 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 				}catch(Exception e){
 					try{
 						CrawlerClient.mainlogger.error(this.url,e);
-						Thread.sleep(5000);
-						requestSelf();
+						Thread.sleep(errorSleepTime);
+						this.close();
 					}catch(Exception e1){
 						
 					}
@@ -215,16 +215,26 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 				handle(fullHttpResponse.content().toString(Charset.forName(charset)));
 			}catch(Exception e){
 				CrawlerClient.mainlogger.error(this.url,e);
-				/*FileOutputStream out=new FileOutputStream("a.htm");
-				out.write(fullHttpResponse.content().toString(Charset.forName("gbk")).getBytes("gbk"));
-				out.flush();
-				out.close();*/
 				throw e;
 			}
 			return;
+		}else{
+			try {
+				Thread.sleep(errorSleepTime);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			this.close();
+			onError(fullHttpResponse);
 		}
+		
+	}
+	public void onError(Object response){
+		FullHttpResponse fullHttpResponse=(FullHttpResponse)response;
+		int status=fullHttpResponse.getStatus().code()/100;
 		System.err.println("error:"+fullHttpResponse.getStatus()+":"+this.getUrl());
-		this.close();
+		
 		if(status==3){
 			if(fullHttpResponse.headers().get("Location").contains("err")
 					||fullHttpResponse.headers().get("Location").contains("error")
@@ -238,7 +248,6 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		if(status==4||status==5||status==1){
 			return;
 		}
-		
 	}
 	public Bootstrap getSb() {
 		return sb;

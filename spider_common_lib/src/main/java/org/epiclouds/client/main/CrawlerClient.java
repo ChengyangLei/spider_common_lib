@@ -77,6 +77,9 @@ public class CrawlerClient {
     	//h.setChannel(new NioSocketChannel(workers.next()));
 		CrawlerEnvironment.pool.execute(h);
     }
+    public void execute(final Runnable h) {
+		CrawlerEnvironment.pool.execute(h);
+    }
     
     public void close(){
     	workers.shutdownGracefully();

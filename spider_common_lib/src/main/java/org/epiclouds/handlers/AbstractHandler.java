@@ -36,6 +36,24 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 	
 	protected volatile SocketAddress proxyaddr;
 	
+	protected int errorSleepTime=20*1000;
+	
+	public String getCharset() {
+		return charset;
+	}
+
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
+
+	public int getErrorSleepTime() {
+		return errorSleepTime;
+	}
+
+	public void setErrorSleepTime(int errorSleepTime) {
+		this.errorSleepTime = errorSleepTime;
+	}
+
 	public String getHost() {
 		return host;
 	}
