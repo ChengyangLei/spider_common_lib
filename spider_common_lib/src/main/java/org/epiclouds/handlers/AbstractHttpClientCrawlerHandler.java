@@ -73,7 +73,7 @@ public abstract class AbstractHttpClientCrawlerHandler extends
     private BasicCookieStore cookieStore;
     private CloseableHttpClient httpclient ;
 	
-
+    private int timeout=30;
 
 
 
@@ -112,7 +112,6 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 			            new SSLConnectionSocketFactory(sslContext, new AllowAllHostnameVerifier());
 
 	        // 从上述SSLContext对象中得到SSLSocketFactory对象
-	        SSLSocketFactory ssf = sslContext.getSocketFactory();
 			 cookieStore = new BasicCookieStore();
 			 httpclient = HttpClients.custom()
 					 	.setSSLSocketFactory(connectionFactory)
@@ -191,16 +190,16 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 	            		((InetSocketAddress)this.getProxyaddr()).getPort(),
 	            		"http");
 	            config = RequestConfig.custom()
-						 .setConnectionRequestTimeout(30*1000)
-						 .setConnectTimeout(30*1000)
-						 .setSocketTimeout(30*1000)
+						 .setConnectionRequestTimeout(getTimeout()*1000)
+						 .setConnectTimeout(getTimeout()*1000)
+						 .setSocketTimeout(getTimeout()*1000)
 		                 .setProxy(proxy)
 	                    .build();
 			}else{
 				config = RequestConfig.custom()
-						 .setConnectionRequestTimeout(30*1000)
-						 .setConnectTimeout(30*1000)
-						 .setSocketTimeout(30*1000)
+						 .setConnectionRequestTimeout(getTimeout()*1000)
+						 .setConnectTimeout(getTimeout()*1000)
+						 .setSocketTimeout(getTimeout()*1000)
 		                    .build();
 			}
 			((HttpRequestBase)request).setConfig(config);
@@ -280,6 +279,14 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 			this.callback.onfinished(this);
 		}
 
+	}
+
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
 	}
 
 
