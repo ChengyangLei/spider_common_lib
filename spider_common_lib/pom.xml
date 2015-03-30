@@ -6,7 +6,7 @@
   <parent>
   	<groupId>org.epiclouds</groupId>
   	<artifactId>spiders_pom</artifactId>
-  	<relativePath>../../yuanshuju_spiders/spiders_pom/pom.xml</relativePath>
+  	<relativePath>../../../server/yuanshuju_spiders/spiders_pom/pom.xml</relativePath>
   	<version>0.1</version>
   </parent>
   <build>
