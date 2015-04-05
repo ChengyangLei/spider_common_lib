@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.epiclouds.handlers.util.FinishCallBack;
+import org.epiclouds.handlers.util.ProxyStateBean;
 
 /**
  * @author Administrator
@@ -24,7 +25,7 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 
 
 	protected volatile FinishCallBack callback;
-	protected volatile HandlerResultState state;
+	protected volatile HandlerResultState state=HandlerResultState.SUCCESS;
 	
 	protected volatile String schema;
 	protected volatile String host;
@@ -34,10 +35,41 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 	protected volatile Map<String,String> postdata=new HashMap<String, String>();
 	protected volatile String charset;
 	
-	protected volatile SocketAddress proxyaddr;
+
+
+	protected volatile ProxyStateBean proxyaddr;
 	
-	protected int errorSleepTime=20*1000;
+	protected volatile int errorSleepTime=20*1000;
 	
+	protected volatile int maxErrorNum=0;
+    protected volatile int errorNum=0;
+	
+	
+	public ProxyStateBean getProxyaddr() {
+		return proxyaddr;
+	}
+
+	public void setProxyaddr(ProxyStateBean proxyaddr) {
+		this.proxyaddr = proxyaddr;
+	}
+
+
+	public int getErrorNum() {
+		return errorNum;
+	}
+
+	public void setErrorNum(int errorNum) {
+		this.errorNum = errorNum;
+	}
+
+	public int getMaxErrorNum() {
+		return maxErrorNum;
+	}
+
+	public void setMaxErrorNum(int maxErrorNum) {
+		this.maxErrorNum = maxErrorNum;
+	}
+
 	public String getCharset() {
 		return charset;
 	}
@@ -110,13 +142,7 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 	}
 
 
-	public SocketAddress getProxyaddr() {
-		return proxyaddr;
-	}
 
-	public void setProxyaddr(SocketAddress proxyaddr) {
-		this.proxyaddr = proxyaddr;
-	}
 
 	public String getUrl() {
 		return url;
@@ -130,7 +156,8 @@ public abstract class AbstractHandler implements CrawlerHandlerInterface{
 	
 	public  enum HandlerResultState{
 		SUCCESS,
-		FAILED
+		FAILED,
+		ERROR
 	}
 	
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.epiclouds.handlers.AbstractHttpClientCrawlerHandler;
 import org.epiclouds.handlers.AbstractNettyCrawlerHandler;
+import org.epiclouds.handlers.util.ProxyStateBean;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,7 +25,7 @@ public class TerapeakSpider extends AbstractHttpClientCrawlerHandler {
 	private String fileName="1.txt";
 	private FileOutputStream out;
 	private TerapeakBean tb=new TerapeakBean();
-	public TerapeakSpider(SocketAddress proxyaddr, String host, String url,
+	public TerapeakSpider(ProxyStateBean proxyaddr, String host, String url,
 			String schema, String charset,String keyword,int days,int num) {
 		super(proxyaddr, host, url, schema, charset);
 		this.keyword=keyword;

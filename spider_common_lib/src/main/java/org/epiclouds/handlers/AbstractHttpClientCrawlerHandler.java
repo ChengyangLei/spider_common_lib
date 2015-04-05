@@ -33,33 +33,38 @@ import javax.net.ssl.TrustManager;
 
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.epiclouds.client.main.CrawlerClient;
-import org.epiclouds.handlers.util.MyX509TrustManager;
+import org.epiclouds.handlers.util.ProxyManger;
+import org.epiclouds.handlers.util.ProxyStateBean;
+import org.joda.time.DateTime;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.ProxyConfig;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebResponse;
+
 
 /**
  * @author Administrator
@@ -74,10 +79,9 @@ public abstract class AbstractHttpClientCrawlerHandler extends
     private CloseableHttpClient httpclient ;
 	
     private int timeout=30;
+    
 
-
-
-	public AbstractHttpClientCrawlerHandler(SocketAddress proxyaddr
+	public AbstractHttpClientCrawlerHandler(ProxyStateBean proxyaddr
 			,String host,String url,String schema,String charset
 			){
 		super();
@@ -128,8 +132,7 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 			try{
 				//bb=Unpooled.wrappedBuffer(EntityUtils.toByteArray(webResponse.getEntity()));
 				handle(EntityUtils.toString(webResponse.getEntity(), charset));
-			}catch(Exception e){
-				throw e;
+				ProxyManger.setAddrErrorInfo(host, proxyaddr,null);
 			}finally{
 				if(bb!=null){
 					bb.release();
@@ -138,6 +141,8 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 			return;
 		}
 		System.err.println("error:"+webResponse.getStatusLine()+":"+this.getUrl());
+		ProxyManger.setAddrErrorInfo(host, proxyaddr,new DateTime().toString("yyyy-MM-dd hh:mm:ss")+"error:"+webResponse.getStatusLine()+":"+this.getUrl());
+		errorNum++;
 		Thread.sleep(errorSleepTime);
 		onError(webResponse);
 		
@@ -186,8 +191,8 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 			}
 			 RequestConfig config ;
 			if(this.getProxyaddr()!=null){
-	            HttpHost proxy = new HttpHost(((InetSocketAddress)this.getProxyaddr()).getHostString(), 
-	            		((InetSocketAddress)this.getProxyaddr()).getPort(),
+	            HttpHost proxy = new HttpHost(((InetSocketAddress)this.getProxyaddr().getAddr()).getHostString(), 
+	            		((InetSocketAddress)this.getProxyaddr().getAddr()).getPort(),
 	            		"http");
 	            config = RequestConfig.custom()
 						 .setConnectionRequestTimeout(getTimeout()*1000)
@@ -206,15 +211,28 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 			request.addHeader("Connection","keep-Alive");
 			request.addHeader("Host",this.host);
 			request.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.76 Safari/537.36");
+			HttpClientContext context=null;
+			if(this.getProxyaddr()!=null&&this.getProxyaddr().getAuthStr()!=null){
+				CredentialsProvider credsProvider =  new BasicCredentialsProvider();
+            	credsProvider.setCredentials(
+            	        new AuthScope(null, -1),
+            	        new UsernamePasswordCredentials(this.getProxyaddr().getAuthStr()));
+            	AuthCache authCache = new BasicAuthCache();
+
+            	context = HttpClientContext.create();
+            	context.setCredentialsProvider(credsProvider);
+            	context.setAuthCache(authCache);
+			}
 			if(this.headers!=null){
 				for(String k:headers.keySet()){
 					request.addHeader(k,headers.get(k));
 				}
 			}
 			
-			CloseableHttpResponse response = httpclient.execute(target, request);
+			CloseableHttpResponse response = httpclient.execute(target, request,context);
             this.que.add(response);
 	}
+
 	public String getSchema() {
 		return schema;
 	}
@@ -252,10 +270,17 @@ public abstract class AbstractHttpClientCrawlerHandler extends
 							re.close();
 						}
 					}else{
+						errorNum++;
 						requestSelf();
 					}
 				}catch(Exception e){
 					CrawlerClient.mainlogger.error(this.url,e);
+					ProxyManger.setAddrErrorInfo(host, proxyaddr,new DateTime().toString("yyyy-MM-dd hh:mm:ss") +e.toString());
+					errorNum++;
+					if(maxErrorNum!=0&&errorNum>maxErrorNum){
+						this.state=HandlerResultState.ERROR;
+						break;
+					}
 					try {
 						Thread.sleep(errorSleepTime);
 					} catch (InterruptedException e1) {

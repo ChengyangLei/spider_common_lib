@@ -19,12 +19,16 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.epiclouds.client.main.CrawlerClient;
+import org.epiclouds.handlers.util.ProxyManger;
+import org.epiclouds.handlers.util.ProxyStateBean;
+import org.joda.time.DateTime;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.ProxyConfig;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
 
 /**
@@ -37,9 +41,7 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 	private  ArrayBlockingQueue<WebResponse> que=new ArrayBlockingQueue<>(10);
 	
 	volatile private WebClient webClient;
-	volatile int errornum=0;
 	private String windowName;
-	private int errorlimit=Integer.MAX_VALUE;
 	private boolean isclosed=true;
 
 	
@@ -49,14 +51,13 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 	}
 
 
-	public AbstractHtmlUnitCrawlerHandler(SocketAddress proxyaddr
-			,String host,String url,int errorlimit,String charset
+	public AbstractHtmlUnitCrawlerHandler(ProxyStateBean proxyaddr
+			,String host,String url,String charset
 			){
 		super();
 		this.proxyaddr=proxyaddr;
 		this.host=host;
 		this.url=url;
-		this.errorlimit=errorlimit;
 		this.charset=charset;
 	}
 	
@@ -81,8 +82,8 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 			   
 			if(this.proxyaddr!=null){
 				webClient.getOptions().setProxyConfig(new ProxyConfig(
-						((InetSocketAddress)proxyaddr).getHostString(),
-						((InetSocketAddress)proxyaddr).getPort()));
+						((InetSocketAddress)proxyaddr.getAddr()).getHostString(),
+						((InetSocketAddress)proxyaddr.getAddr()).getPort()));
 			}
 			requestSelf();
 			isclosed=false;
@@ -97,6 +98,7 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 			try{
 				//bb=Unpooled.wrappedBuffer(webResponse.getContentAsString().getBytes(webResponse.getContentCharset()));
 				handle(webResponse.getContentAsString(charset));
+				ProxyManger.setAddrErrorInfo(host, proxyaddr,null);
 			}catch(Exception e){
 /*				FileOutputStream out=new FileOutputStream("a.htm");
 				out.write(webResponse.getContentAsString().getBytes(webResponse.getContentCharset()));
@@ -110,7 +112,10 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 			}
 			return;
 		}
+		errorNum++;
 		System.err.println("error:"+webResponse.getStatusMessage()+":"+this.getUrl());
+		ProxyManger.setAddrErrorInfo(host, proxyaddr,new DateTime().toString("yyyy-MM-dd hh:mm:ss")+"error:"+webResponse.getStatusMessage()+":"+this.getUrl());
+
 		Thread.sleep(errorSleepTime);
 		close();
 		onError(webResponse);
@@ -127,7 +132,13 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 	private void requestSelf() throws FailingHttpStatusCodeException, IOException{
 		try {
 			this.que.clear();
-			Page p=webClient.getPage(new URL(url));
+			WebRequest re=new WebRequest(new URL(url),this.md.compareTo(HttpMethod.GET)==0?com.gargoylesoftware.htmlunit.HttpMethod.GET:com.gargoylesoftware.htmlunit.HttpMethod.POST);
+			re.setCharset(charset);
+			if(this.getProxyaddr()!=null&&this.getProxyaddr().getAuthStr()!=null){
+				re.setAdditionalHeader("Proxy-Authorization", "Basic "
+					+new sun.misc.BASE64Encoder().encode(this.getProxyaddr().getAuthStr().getBytes()));
+			}
+			Page p=webClient.getPage(re);
 			this.que.add(p.getWebResponse());
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -137,6 +148,7 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 	}
 	public void request(String url,HttpMethod hm,Map<String,String> headers,Map<String,String> postdata,String schema) throws Exception{
 		this.url=url;
+		this.md=hm;
 		requestSelf();
 	}
 	/* (non-Javadoc)
@@ -153,19 +165,17 @@ public abstract class AbstractHtmlUnitCrawlerHandler extends
 					if(re!=null){
 						handleResponse2(re);
 					}else{
-						errornum++;
-						if(errornum>=errorlimit){
-							this.setState(HandlerResultState.FAILED);
-							stop();
-							break;
-						}
+						errorNum++;
 						close();
 					}
 				}catch(Exception e){
 					CrawlerClient.mainlogger.error(this.url,e);
-					errornum++;
-					if(errornum>=errorlimit){
-						this.setState(HandlerResultState.FAILED);
+					ProxyManger.setAddrErrorInfo(host, proxyaddr,
+							new DateTime().toString("yyyy-MM-dd hh:mm:ss")+e.toString());
+
+					errorNum++;
+					if(maxErrorNum!=0&&errorNum>=maxErrorNum){
+						this.setState(HandlerResultState.ERROR);
 						stop();
 						break;
 					}

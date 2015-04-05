@@ -13,5 +13,5 @@ import java.util.concurrent.Executors;
  *
  */
 public class CrawlerEnvironment{
-	public static Executor pool=Executors.newCachedThreadPool();
+	public static Executor pool=Executors.newFixedThreadPool(400);
 }

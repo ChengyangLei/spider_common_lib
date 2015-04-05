@@ -28,7 +28,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.epiclouds.client.main.CrawlerClient;
 import org.epiclouds.client.netty.handler.CrawlerHttpClientHandler;
+import org.epiclouds.handlers.AbstractHandler.HandlerResultState;
 import org.epiclouds.handlers.util.MyHttpResponse;
+import org.epiclouds.handlers.util.ProxyManger;
+import org.epiclouds.handlers.util.ProxyStateBean;
+import org.joda.time.DateTime;
 
 /**
  * @author Administrator
@@ -42,7 +46,7 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 	
 
 	public AbstractNettyCrawlerHandler(
-			SocketAddress proxyAddr,String schema,String host,String url,HttpMethod md,Map<String,String> headers,
+			ProxyStateBean proxyAddr,String schema,String host,String url,HttpMethod md,Map<String,String> headers,
 			Map<String,String> postdata,String charset){
 		this.proxyaddr=proxyAddr;
 		if(headers!=null)
@@ -67,7 +71,7 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		if(proxyaddr==null){
 			addr=new InetSocketAddress(host,schema.equals("http")?80:443 );
 		}else{
-			addr=proxyaddr;
+			addr=proxyaddr.getAddr();
 		}
 		try {
 			ChannelFuture future=sb.connect(addr);
@@ -111,6 +115,10 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		if(this.proxyaddr==null){
 			req=new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, this.md, url);
 			req.headers().add("Connection","Keep-Alive");
+			if(this.getProxyaddr().getAuthStr()!=null){
+				req.headers().add("Proxy-Authorization", "Basic "
+						+new sun.misc.BASE64Encoder().encode("yuanshuju:yuanshuju".getBytes()));
+			}
 		}else{
 			req=new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, this.md, "http://"+this.host+url);
 			req.headers().add("Proxy-Connection","Keep-Alive");
@@ -188,10 +196,17 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 							r.getResponse().release();
 						}
 					}else{
+						errorNum++;
 						this.close();
 					}
 				}catch(Exception e){
+					ProxyManger.setAddrErrorInfo(host, proxyaddr,new DateTime().toString("yyyy-MM-dd hh:mm:ss")+e.toString());
 					try{
+						errorNum++;
+						if(maxErrorNum!=0&&errorNum>maxErrorNum){
+							this.state=HandlerResultState.ERROR;
+							break;
+						}
 						CrawlerClient.mainlogger.error(this.url,e);
 						Thread.sleep(errorSleepTime);
 						this.close();
@@ -202,7 +217,6 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 			}
 		}finally{
 			if(callback!=null){
-				this.state=HandlerResultState.SUCCESS;
 				callback.onfinished(this);
 			}
 		}
@@ -213,12 +227,15 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		if(status==2){
 			try{
 				handle(fullHttpResponse.content().toString(Charset.forName(charset)));
+				ProxyManger.setAddrErrorInfo(host, proxyaddr,null);
 			}catch(Exception e){
 				CrawlerClient.mainlogger.error(this.url,e);
 				throw e;
 			}
 			return;
 		}else{
+			ProxyManger.setAddrErrorInfo(host, proxyaddr,new DateTime().toString("yyyy-MM-dd hh:mm:ss")+fullHttpResponse.getStatus());
+			errorNum++;
 			try {
 				Thread.sleep(errorSleepTime);
 			} catch (InterruptedException e) {
