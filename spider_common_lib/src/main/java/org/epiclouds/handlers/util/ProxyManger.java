@@ -21,6 +21,7 @@ public class ProxyManger {
 	}
 
 	public static void addProxy(String host,ProxyStateBean psb) throws InterruptedException{
+		if(host==null||psb==null) return;
 		proxies.putIfAbsent(host, new LinkedBlockingQueue<ProxyStateBean>());
 		LinkedBlockingQueue<ProxyStateBean> que=proxies.get(host);
 		que.put(psb);
@@ -30,6 +31,8 @@ public class ProxyManger {
 	}
 	
 	public static ProxyStateBean getProxy(String host) throws InterruptedException {
+		if(host==null) return null;
+		proxies.putIfAbsent(host, new LinkedBlockingQueue<ProxyStateBean>());
 		ProxyStateBean addr= proxies.get(host).take();
 		proxyStatus.putIfAbsent(host, new ConcurrentHashMap<SocketAddress, ProxyStateBean>() );
 		Map<SocketAddress, ProxyStateBean> mp=proxyStatus.get(host);
@@ -39,6 +42,8 @@ public class ProxyManger {
 		return addr;
 	}
 	public static void putProxy(String host,ProxyStateBean addr) throws InterruptedException {
+		if(host==null||addr==null) return;
+		proxies.putIfAbsent(host, new LinkedBlockingQueue<ProxyStateBean>());
 		proxies.get(host).put(addr);
 		proxyStatus.putIfAbsent(host, new ConcurrentHashMap<SocketAddress, ProxyStateBean>() );
 		Map<SocketAddress, ProxyStateBean> mp=proxyStatus.get(host);
@@ -48,6 +53,8 @@ public class ProxyManger {
 	
 	
 	public static void setAddrErrorInfo(String host,ProxyStateBean addr,String errorInfo){
+		if(host==null||addr==null) return;
+		proxies.putIfAbsent(host, new LinkedBlockingQueue<ProxyStateBean>());
 		proxyStatus.putIfAbsent(host, new ConcurrentHashMap<SocketAddress, ProxyStateBean>() );
 		Map<SocketAddress, ProxyStateBean> mp=proxyStatus.get(host);
 		ProxyStateBean psb=mp.get(addr.getAddr());

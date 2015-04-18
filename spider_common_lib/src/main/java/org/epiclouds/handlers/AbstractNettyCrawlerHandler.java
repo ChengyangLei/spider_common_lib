@@ -115,13 +115,14 @@ public abstract class AbstractNettyCrawlerHandler extends AbstractHandler{
 		if(this.proxyaddr==null){
 			req=new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, this.md, url);
 			req.headers().add("Connection","Keep-Alive");
+			
+		}else{
+			req=new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, this.md, "http://"+this.host+url);
+			req.headers().add("Proxy-Connection","Keep-Alive");
 			if(this.getProxyaddr().getAuthStr()!=null){
 				req.headers().add("Proxy-Authorization", "Basic "
 						+new sun.misc.BASE64Encoder().encode(this.getProxyaddr().getAuthStr().getBytes()));
 			}
-		}else{
-			req=new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, this.md, "http://"+this.host+url);
-			req.headers().add("Proxy-Connection","Keep-Alive");
 		}
 		req.headers().add("Host",this.host);
 		req.headers().add("User-Agent", "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 Safari/537.36");
